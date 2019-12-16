@@ -57,10 +57,12 @@ class Movie(db.DBObject):
 
 class Episode(db.DBObject):
 	title: str
+	cast: list = MultiRef(Cast,exclusive=True,backref="media")
 
 class Season(db.DBObject):
 	artwork_cover_options: list = MultiRef(Image,exclusive=True,backref="entity")
 	artwork_cover_index: int
+	cast: list = MultiRef(Cast,exclusive=True,backref="media")
 
 	episodes: list = MultiRef(Episode,exclusive=True,backref="season")
 

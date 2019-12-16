@@ -21,20 +21,7 @@ def parse(filename):
 	info["sorttitle"] = get_first_existing_key(res,("sorttitle"),info["title"])
 
 	cast = get_first_existing_key(res,("cast","actors"),[])
-	info["cast"] = []
-
-	if isinstance(cast,list):
-		for entry in cast:
-			if isinstance(entry,str):
-				role, actor = entry, entry #someone playing themselves
-			else:
-				role = get_first_existing_key(entry,("role","character"))
-				actor = get_first_existing_key(entry,("name","actor","actress"))
-			if actor is not None:
-				info["cast"].append({"role":role,"actor":actor})
-	elif isinstance(cast,dict):
-		for r in cast:
-			info["cast"].append({"role":r,"actor":cast[r]})
+	info["cast"] = parse_cast(cast)
 
 
 
@@ -77,12 +64,30 @@ def parse(filename):
 
 	return info
 
+
+def parse_cast(info):
+	result = []
+	if isinstance(info,list):
+		for entry in info:
+			if isinstance(entry,str):
+				role, actor = entry, entry #someone playing themselves
+			else:
+				role = get_first_existing_key(entry,("role","character"))
+				actor = get_first_existing_key(entry,("name","actor","actress"))
+			if actor is not None:
+				result.append({"role":role,"actor":actor})
+	elif isinstance(info,dict):
+		for r in info:
+			result.append({"role":r,"actor":info[r]})
+
+	return result
+
 def parse_episode(info):
 	if isinstance(info,str): return {"title":info}
 	elif isinstance(info,dict):
 		return {
-			"title":get_first_existing_key(info,("title","name"))
-			# other episode info to parse?
+			"title":get_first_existing_key(info,("title","name")),
+			"cast":parse_cast(get_first_existing_key(info,("cast","actors"),[]))
 		}
 	else:
 		print("Could not parse data type",type(info),"to episode.")
@@ -93,8 +98,8 @@ def parse_season(info):
 	episodes.update({k:info[k] for k in info if isinstance(k,int)}) #all direct int keys are also episodes
 
 	return {
-		"episodes": {k:parse_episode(episodes[k]) for k in episodes}
-		# other season info to parse?
+		"episodes": {k:parse_episode(episodes[k]) for k in episodes},
+		"cast":parse_cast(get_first_existing_key(info,("cast","actors"),[]))
 	}
 
 
