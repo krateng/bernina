@@ -18,6 +18,11 @@ FILES = {
 	"background":["background","bg"]
 }
 
+for type in FOLDERS:
+	FOLDERS[type] += ["." + n for n in FOLDERS[type]]
+for type in FILES:
+	FILES[type] += ["." + n for n in FILES[type]]
+
 
 def search_folder(dir):
 	imgs = dir.files["image"]
@@ -28,14 +33,13 @@ def search_folder(dir):
 	for i in imgs:
 		rawname = ".".join(i.split(".")[:-1])
 		for type in FILES:
-			if rawname in FILES[type]:
-				print(i,"is a",type)
-				result[type].append(i)
+			for name in FILES[type]:
+				if rawname in name:
+					result[type].append(i)
 
 	for sf in subfolders:
 		for type in FOLDERS:
 			if sf.name in FOLDERS[type]:
-				print("found",type,":",sf.files)
 				for f in sf.files["image"]:
 					name = ".".join(f.split(".")[:-1])
 					result[type][name] = pthj(sf.name,f)
@@ -109,20 +113,20 @@ def parsedir(dir,prefix=(),force_show=None):
 		media = build(info)
 
 		artwork = search_folder(dir)
-		print(media,"has artwork",artwork)
 		for img in artwork["cover"]:
 			media.artwork_cover_options.append(Image(path=pthj(*thispath,img)))
 		for img in artwork["background"]:
 			media.artwork_background_options.append(Image(path=pthj(*thispath,img)))
 		for name in artwork["cast"]:
-			print("Checking if",name,"appears in the cast of",media)
 			img = artwork["cast"][name]
-			print("Cast:",media.cast)
 			for c in media.get_full_cast():
-				print("check",c)
-				artistname = c.actor.name
-				rolename = c.role
-				if name.lower() == artistname.lower() or name.lower() == rolename.lower():
+				#name = name.lower().replace(" ","")
+				name = "".join(char for char in name if char.isalpha()).lower()
+				#artistname = c.actor.name.lower().replace(" ","")
+				artistname = "".join(char for char in name if char.isalpha()).lower()
+				#rolename = c.role.lower().replace(" ","")
+				rolename = "".join(char for char in name if char.isalpha()).lower()
+				if name == artistname or name == rolename:
 					c.specific_picture = Image(path=pthj(*thispath,img))
 
 
@@ -130,7 +134,7 @@ def parsedir(dir,prefix=(),force_show=None):
 		if isinstance(media,Show):
 			for d in dir.subdirs:
 				if d.name in [f for type in FOLDERS for f in FOLDERS[type]]:
-					print(d.name,"is a special folder, not parsing for new seasons")
+					print(d.name,"is a special folder, not parsing for seasons")
 				else:
 					try:
 						seasonnum = int(filter(str.isdigit,d.name))

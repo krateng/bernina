@@ -43,12 +43,22 @@ def server_handlers(server):
 		return static_file(ext + "/" + name + "." + ext,root=STATICFOLDER)
 
 
-	@server.get("/")
-	def start():
+	@server.get("/<name>")
+	def page(name):
 		if auth.check(request):
-			result = pyhpfile(os.path.join(WEBFOLDER,"main.pyhp"),{"db":db})
+			result = pyhpfile(os.path.join(WEBFOLDER,name + ".pyhp"),{"db":db})
 		else:
 			#result = pyhpfile("web/login.pyhp",{"db":db,"auth":auth})
 			result = auth.get_login_page(stylesheets=["/style.css"])
 
 		return result
+
+	@server.get("/")
+	def start():
+		return page("library")
+
+
+	@server.get("/artwork/<uid>")
+	def artwork(uid):
+		uid = int(uid)
+		return static_file(db.get_artwork(uid).path,root="")

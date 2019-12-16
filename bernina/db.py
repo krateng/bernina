@@ -44,7 +44,12 @@ class Artist(db.DBObject):
 
 
 class Media:
-	pass
+
+	def get_artwork_cover(self):
+		try:
+			return self.artwork_cover_options[self.artwork_cover_index].link()
+		except:
+			return ""
 
 class Cast(db.DBObject):
 	__primary__ = "actor","role","media"
@@ -101,6 +106,9 @@ class Season(db.DBObject,Media):
 	def __db_repr__(self):
 		return self.show.title + " Season " + str(self.number)
 
+	def get_full_cast(self):
+		return list(set(self.cast + self.show.cast + [c for e in self.episodes for c in e.cast]))
+
 class Episode(db.DBObject,Media):
 	__primary__ = "season","number"
 	title: str
@@ -135,6 +143,9 @@ def list_shows():
 @api.get("artists")
 def list_artists():
 	return db.getall(Artist)
+
+def get_artwork(uid):
+	return db.get(uid)
 
 
 def save_database():

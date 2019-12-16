@@ -1,0 +1,84 @@
+<html>
+	<head>
+		<pyhp include="common/head.html" />
+	</head>
+
+	<body>
+
+
+
+		<div id="content_area" class="content_area">
+			<pyhp for="media_item" in="db.list_movies() + db.list_shows()" >
+				<pyhp save="media_item.get_artwork_cover()" as="cover" />
+				<div class="content_element">
+					<table>
+					   <tr class="image"><td>
+						   <div class="artwork" style="background-image:url('{cover}');"></div>
+						   <div title="Play" class="element_play"></div>
+						</td></tr>
+
+						<tr class="main_info"><td>
+							<span title="{media_item.title}"><a><pyhp echo="media_item.title" /></a></span>
+						</td></tr>
+					</table>
+				</div>
+			</pyhp>
+
+		</div>
+
+
+		<div id="playback_bar">
+			<div id="progressbar" class="grisons_bar seekable scrollseekable" data-seekcallback="seek" data-scrollsensitivity="0.1">
+				<div id="progressed" style="width:0%;" class="update" data-updatefrom="updateProgressBar"></div>
+			</div>
+			<table><tr>
+				<td id="metadata">
+				<!--	<div id="current_track_artwork"></div>
+					<div id="current_track_data">
+						<span id="current_track_title"></span>
+						<span id="current_track_artists"></span>
+					</div>
+					<div id="up_next">
+						<ul>
+							<li>wat</li>
+							<li>wut</li>
+						</ul>
+					</div> -->
+
+
+					<table>
+						<tr>
+							<td id="current_track_artwork"></td>
+							<td id="current_track_data">
+								<span id="current_track_title"></span>
+								<span id="current_track_artists"></span>
+							</td>
+							<td id="next_tracks">
+								<span id="next_tracks_label" class="hide">Up Next</span>
+								<table>
+									<tr><td id="next_1"></td></tr>
+									<tr><td id="next_2"></td></tr>
+									<tr><td id="next_3"></td></tr>
+									<tr><td id="next_4"></td></tr>
+								</table>
+
+							</td>
+						</tr>
+					</table>
+				</td>
+				<td id="controls">
+					<div id="prev_button" class="button_prev" onclick="prev()" data-hotkey="ArrowLeft"></div>
+					<div id="play_pause_button" class="button_play" onclick="play" data-hotkey="Space"></div>
+					<div id="next_button" class="button_next" onclick="next()" data-hotkey="ArrowRight"></div>
+				</td>
+				<td id="settings">
+					<div id="volumecontrol" class="seekable scrollseekable grisons_bar" data-seekcallback="changeVolume">
+						<div id="volume" style="width:50%;"></div>
+					</div>
+				</td>
+			</tr></table>
+
+
+		</div>
+	</body>
+</html>
