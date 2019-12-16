@@ -13,7 +13,7 @@ __author__ = {
 __requires__ = [
 	"bottle>=0.12.16",
 	"waitress>=1.3",
-	"doreah>=1.2.10",
+	"doreah>=1.4.1",
 	"nimrodel>=0.6.1",
 	"pyyaml>=5.1",
 	"lesscpy>=0.13"
@@ -56,6 +56,7 @@ config(
 	},
 	auth={
 		"multiuser": False,
-		"cookieprefix": "bernina"
+		"cookieprefix": "bernina",
+		"dbfile": pkgdata("authdb.ddb")
 	}
 )
