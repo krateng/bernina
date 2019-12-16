@@ -25,8 +25,11 @@ def parse(filename):
 
 	if isinstance(cast,list):
 		for entry in cast:
-			role = get_first_existing_key(entry,("role","character"))
-			actor = get_first_existing_key(entry,("name","actor","actress"))
+			if isinstance(entry,str):
+				role, actor = entry, entry #someone playing themselves
+			else:
+				role = get_first_existing_key(entry,("role","character"))
+				actor = get_first_existing_key(entry,("name","actor","actress"))
 			if actor is not None:
 				info["cast"].append({"role":role,"actor":actor})
 	elif isinstance(cast,dict):
