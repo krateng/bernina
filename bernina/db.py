@@ -38,7 +38,7 @@ class Image(db.DBObject):
 class Artist(db.DBObject):
 	__primary__ = "name",
 	name: str
-	picture = Ref(Image,exclusive=True,backref="entity")
+	picture: Image = Ref(Image,exclusive=True,backref="entity")
 #class Character(db.DBObject):
 #	name: str
 
@@ -51,10 +51,13 @@ class Cast(db.DBObject):
 	actor: Artist =  Ref(Artist,exclusive=False,backref="castings")
 	role: str
 	media: Media = Ref(Media,exclusive=False,backref="cast")
-	specific_picture = Ref(Image,exclusive=True,backref="entity")
+	specific_picture: Image = Ref(Image,exclusive=True,backref="entity")
 
 	def __db_repr__(self):
 		return self.actor.name + " as " + self.role
+
+	def get_specific_picture(self):
+		return self.specific_picture or self.actor.picture or None
 
 
 
@@ -62,20 +65,25 @@ class Movie(db.DBObject,Media):
 	title: str
 	artwork_cover_options: list = MultiRef(Image,exclusive=True,backref="entity")
 	artwork_cover_index: int
+	artwork_background_options: list = MultiRef(Image,exclusive=True,backref="entity")
+	artwork_background_index: int
 	#cast: list = MultiRef(Cast,exclusive=True,backref="media")
 
-
+	def get_full_cast(self):
+		return self.cast
 
 class Show(db.DBObject,Media):
 	__primary__ = "title",
 	title: str
 	artwork_cover_options: list = MultiRef(Image,exclusive=True,backref="entity")
 	artwork_cover_index: int
+	artwork_background_options: list = MultiRef(Image,exclusive=True,backref="entity")
+	artwork_background_index: int
 	#cast: list = MultiRef(Cast,exclusive=True,backref="media")
 
 	#seasons: list = MultiRef(Season,exclusive=True,backref="show")
 
-	def get_all_cast(self):
+	def get_full_cast(self):
 		return list(set(self.cast + [c for s in self.seasons for c in s.cast] + [c for s in self.seasons for e in s.episodes for c in e.cast]))
 
 class Season(db.DBObject,Media):
@@ -84,6 +92,8 @@ class Season(db.DBObject,Media):
 	show: Show = Ref(Show,exclusive=False,backref="seasons")
 	artwork_cover_options: list = MultiRef(Image,exclusive=True,backref="entity")
 	artwork_cover_index: int
+	artwork_background_options: list = MultiRef(Image,exclusive=True,backref="entity")
+	artwork_background_index: int
 	#cast: list = MultiRef(Cast,exclusive=True,backref="media")
 
 	#episodes: list = MultiRef(Episode,exclusive=True,backref="season")

@@ -1,13 +1,46 @@
 import os
 import math
 
-
+pthj = os.path.join
 
 FORMATS = {
 	"video":["mp4","webm","mkv"],
 	"image":["jpeg","jpg","png","webp"],
 	"metadata":["yml","yaml","info"]
 }
+
+FOLDERS = {
+	"cast":["cast","actors","casting","castimages","characters"]
+}
+
+FILES = {
+	"cover":["cover","artwork","front","poster"],
+	"background":["background","bg"]
+}
+
+
+def search_folder(dir):
+	imgs = dir.files["image"]
+	subfolders = dir.subdirs
+
+	result = {**{t:[] for t in FILES}, **{t:{} for t in FOLDERS}}
+
+	for i in imgs:
+		rawname = ".".join(i.split(".")[:-1])
+		for type in FILES:
+			if rawname in FILES[type]:
+				print(i,"is a",type)
+				result[type].append(i)
+
+	for sf in subfolders:
+		for type in FOLDERS:
+			if sf.name in FOLDERS[type]:
+				print("found",type,":",sf.files)
+				for f in sf.files["image"]:
+					name = ".".join(f.split(".")[:-1])
+					result[type][name] = pthj(sf.name,f)
+
+	return result
 
 class Directory:
 	def __init__(self,name):
@@ -52,26 +85,65 @@ def scandir(path):
 	return dir
 
 from .yamlparse import parse as yamlparse
-
 from .db import Artist,Image,Movie,Show,Season,Episode,Cast
 
-def parsedir(dir,prefix=()):
+def parsedir(dir,prefix=(),force_show=None):
 
 	thispath = prefix + (dir.name,)
 
 	media = dir.get_files("video")
+	infofiles = dir.get_files("metadata")
+	art = dir.get_files("image")
 
-	if len(media) == 0:
+	# find out what kind of folder this is
+	if len(media) + len(infofiles) + len(art) == 0:
 		print(dir.name,"is not a movie / show folder")
+		# category folder / user structure, just check subfolders
+		for d in dir.subdirs:
+			parsedir(d,thispath)
 	else:
-		metadata = dir.get_files("metadata")
+		# check what kind of media this folder is for
 		info = {}
-		for f in metadata:
+		for f in infofiles:
 			info.update(yamlparse(os.path.join(*thispath,f)))
-		build(info)
+		media = build(info)
 
-	for d in dir.subdirs:
-		parsedir(d,thispath)
+		artwork = search_folder(dir)
+		print(media,"has artwork",artwork)
+		for img in artwork["cover"]:
+			media.artwork_cover_options.append(Image(path=pthj(*thispath,img)))
+		for img in artwork["background"]:
+			media.artwork_background_options.append(Image(path=pthj(*thispath,img)))
+		for name in artwork["cast"]:
+			print("Checking if",name,"appears in the cast of",media)
+			img = artwork["cast"][name]
+			print("Cast:",media.cast)
+			for c in media.get_full_cast():
+				print("check",c)
+				artistname = c.actor.name
+				rolename = c.role
+				if name.lower() == artistname.lower() or name.lower() == rolename.lower():
+					c.specific_picture = Image(path=pthj(*thispath,img))
+
+
+		# if this folder is for a show, check subfolders (they could be seasons)
+		if isinstance(media,Show):
+			for d in dir.subdirs:
+				if d.name in [f for type in FOLDERS for f in FOLDERS[type]]:
+					print(d.name,"is a special folder, not parsing for new seasons")
+				else:
+					try:
+						seasonnum = int(filter(str.isdigit,d.name))
+						parsedir(d,thispath,force_show=(show,seasonnum))
+						# parse the subfolder, tell the function that we already know the show
+						# and can guess the season number
+					except:
+						print(d.name,"does not seem to be a season folder.")
+
+
+
+
+
 
 def parsepath(pth):
 	dir = scandir(pth)
@@ -110,9 +182,13 @@ def build(infodict):
 		for c in infodict['cast']:
 			 Cast(actor=Artist(name=c['actor']),role=c['role'],media=show)
 
+		return show
+
 	else:
 		# movie
-		Movie(title=infodict['title'])
+		movie = Movie(title=infodict['title'])
 
 		for c in infodict['cast']:
 			 Cast(actor=Artist(name=c['actor']),role=c['role'],media=movie)
+
+		return movie
