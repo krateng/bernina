@@ -3,6 +3,3 @@
 *.pyc
 *.txt
 *.sh
-
-# user files
-/testlibrary
