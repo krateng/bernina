@@ -71,8 +71,8 @@ def parse(filename):
 				# only one season, episode specified directly, e.g. 3:
 				else:
 					if not 1 in info["seasons"]:
-						info["seasons"][1] = {}
-					info["seasons"][1][key] = parse_episode(seasons[key])
+						info["seasons"][1] = {"episodes":{}}
+					info["seasons"][1]["episodes"][key] = parse_episode(seasons[key])
 
 
 	return info
@@ -97,6 +97,27 @@ def parse_season(info):
 		# other season info to parse?
 	}
 
+
+from .db import Artist,Image,Movie,Show,Season,Episode,Cast
+def build(infodict):
+	if "seasons" in infodict:
+		# show
+		seasons = [None] * (max(infodict["seasons"].keys())+1) # keep first element empty just so list indices == season nums
+		print(seasons)
+		for seasonnum in infodict["seasons"]:
+			season_info = infodict["seasons"][seasonnum]
+			episodes = [None] * (max(season_info["episodes"].keys())+1)
+			print(season_info["episodes"].keys())
+			print(episodes)
+			for episodenum in season_info["episodes"]:
+				episode_info = season_info["episodes"][episodenum]
+				episodes[episodenum] = Episode(title=episode_info['title'])
+			seasons[seasonnum] = Season(episodes=episodes)
+		Show(seasons=seasons,title=infodict['title'],cast=[Cast(actor=Artist(name=c['actor']),role=c['role']) for c in infodict['cast']])
+
+	else:
+		# movie
+		Movie(title=infodict['title'],cast=[Cast(actor=Artist(name=c['actor']),role=c['role']) for c in infodict['cast']])
 
 
 if __name__ == "__main__":

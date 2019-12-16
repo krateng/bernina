@@ -13,7 +13,7 @@ THREADS = 12
 
 WEBFOLDER = pkg_resources.resource_filename(__name__,"web")
 STATICFOLDER = pkg_resources.resource_filename(__name__,"static")
-DATAFOLDER = packageutils.get_datafolder()
+DATAFOLDER = packageutils.pkgdata()
 
 pthjoin = os.path.join
 

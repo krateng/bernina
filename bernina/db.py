@@ -8,12 +8,6 @@ import re
 import random
 
 
-import mutagen
-from mutagen.mp3 import MP3
-from mutagen.flac import FLAC
-import zlib
-
-
 #from db_oo_helper import Ref, MultiRef, DBObject, db, save_database, load_database
 from doreah.database import Database, Ref, MultiRef
 from doreah.settings import get_settings
@@ -42,13 +36,14 @@ class Image(db.DBObject):
 		return "/artwork/" + str(self.uid)
 
 class Artist(db.DBObject):
+	__primary__ = "name",
 	name: str
 	picture = Ref(Image,exclusive=True,backref="entity")
 #class Character(db.DBObject):
 #	name: str
 
 class Cast(db.DBObject):
-	actor =  Ref(Artist)
+	actor: Artist =  Ref(Artist)
 	role: str
 	specific_picture = Ref(Image,exclusive=True,backref="entity")
 
