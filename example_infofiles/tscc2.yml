@@ -1,0 +1,25 @@
+name: "Terminator: The Sarah Connor Chronicles"
+cast:
+# cast can also be a list with further information
+- role: Cameron Phillips
+  actress: Summer Glau
+- role: Sarah Connor
+  actress: Lena Headey
+episodes:
+    # episode specified in SxE notation
+    1x01:
+        # extra info instead of just a title possible
+        title: Pilot
+    1x02:
+        title: Gnothi Seauton
+    1x03:
+        title: The Turk
+    2:
+        # we can mix different notations (not recommended!)
+        # either a direct mapping of episode numbers...
+        1:
+            title: Samson and Delilah
+        2: Automatic for the People
+        # or a subentry 'episodes'
+        episodes:
+            3: The Mousetrap

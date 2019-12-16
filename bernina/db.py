@@ -53,6 +53,9 @@ class Cast(db.DBObject):
 	media: Media = Ref(Media,exclusive=False,backref="cast")
 	specific_picture = Ref(Image,exclusive=True,backref="entity")
 
+	def __db_repr__(self):
+		return self.actor.name + " as " + self.role
+
 
 
 class Movie(db.DBObject,Media):
@@ -72,6 +75,9 @@ class Show(db.DBObject,Media):
 
 	#seasons: list = MultiRef(Season,exclusive=True,backref="show")
 
+	def get_all_cast(self):
+		return list(set(self.cast + [c for s in self.seasons for c in s.cast] + [c for s in self.seasons for e in s.episodes for c in e.cast]))
+
 class Season(db.DBObject,Media):
 	__primary__ = "show","number"
 	number: int
@@ -82,6 +88,9 @@ class Season(db.DBObject,Media):
 
 	#episodes: list = MultiRef(Episode,exclusive=True,backref="season")
 
+	def __db_repr__(self):
+		return self.show.title + " Season " + str(self.number)
+
 class Episode(db.DBObject,Media):
 	__primary__ = "season","number"
 	title: str
@@ -91,6 +100,9 @@ class Episode(db.DBObject,Media):
 
 	def get_full_cast(self):
 		return list(set(self.cast + self.season.cast + self.season.show.cast))
+
+	def __db_repr__(self):
+		return self.season.show.title + " S" + str(self.season.number) + " E" + str(self.number) + " " + self.title
 
 
 

@@ -1,14 +1,16 @@
 from bernina import yamlparse
+import yaml
 
 testfiles = [
-	"testlibrary/tscc.yml",
-	"testlibrary/tscc2.yml",
-	"testlibrary/tscc3.yml",
+	"example_infofiles/tscc.yml",
+	"example_infofiles/tscc2.yml",
+	"example_infofiles/tscc3.yml",
 ]
 
 testresults = [yamlparse.parse(f) for f in testfiles]
 
-for f in testresults[1:]:
-	assert testresults[0] == f
-
-print("All good!")
+res = {}
+for t in testresults:
+	res.update(t)
+	print(t)
+#print(yaml.dump(res))
