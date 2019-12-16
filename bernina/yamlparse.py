@@ -16,27 +16,18 @@ def parse(filename):
 	with open(filename,"r") as f:
 		res = yaml.safe_load(f)
 
-	if "name" in res: info["title"] = res["name"]
-	elif "title" in res: info["title"] = res["title"]
-	if "sorttitle" in res: info["sorttitle"] = res["sorttitle"]
-	elif "title" in info: info["sorttitle"] = info["title"]
 
-	cast = []
+	info["title"] = get_first_existing_key(res,("title","name"))
+	info["sorttitle"] = get_first_existing_key(res,("sorttitle"),info["title"])
+
+	cast = get_first_existing_key(res,("cast","actors"),[])
 	info["cast"] = []
-	if "cast" in res:
-		cast = res["cast"]
-	elif "actors" in res:
-		cast = res["actors"]
 
 	if isinstance(cast,list):
 		for entry in cast:
-			role, actor = None, None
-			if "role" in entry: role = entry["role"]
-			elif "character" in entry: role = entry["character"]
-			if "name" in entry: actor = entry["name"]
-			elif "actor" in entry: actor = entry["name"]
-			elif "actress" in entry: actor = entry["actress"]
-			if actor is not None and role is not None:
+			role = get_first_existing_key(entry,("role","character"))
+			actor = get_first_existing_key(entry,("name","actor","actress"))
+			if actor is not None:
 				info["cast"].append({"role":role,"actor":actor})
 	elif isinstance(cast,dict):
 		for r in cast:

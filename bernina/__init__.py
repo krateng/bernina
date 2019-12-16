@@ -2,7 +2,7 @@
 
 __name__ = "bernina"
 __desc__ = "A minimalist self-hosted media server"
-__version__ = 0,1
+__version__ = 0,0,1
 __versionstr__ = ".".join(str(n) for n in __version__)
 __author__ = {
 	"name":"Johannes Krattenmacher",
@@ -38,7 +38,7 @@ import pkg_resources
 
 config(
 	packageutils={
-		"packagename": name,
+		"packagename": __name__,
 		"populate": pkg_resources.resource_filename(__name__,"data_files")
 	}
 )
