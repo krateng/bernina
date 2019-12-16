@@ -69,7 +69,6 @@ def parsedir(dir,prefix=()):
 		info = {}
 		for f in metadata:
 			info.update(yamlparse(os.path.join(*thispath,f)))
-		print(dir.name,"info:",info)
 		build(info)
 
 	for d in dir.subdirs:

@@ -107,22 +107,38 @@ from .db import Artist,Image,Movie,Show,Season,Episode,Cast
 def build(infodict):
 	if "seasons" in infodict:
 		# show
-		seasons = [None] * (max(infodict["seasons"].keys())+1) # keep first element empty just so list indices == season nums
-		print(seasons)
+		show = Show(title=infodict['title'])
+		#seasons = [None] * (max(infodict["seasons"].keys())+1) # keep first element empty just so list indices == season nums
 		for seasonnum in infodict["seasons"]:
 			season_info = infodict["seasons"][seasonnum]
-			episodes = [None] * (max(season_info["episodes"].keys())+1)
-			print(season_info["episodes"].keys())
-			print(episodes)
+			season = Season(show=show,number=seasonnum)
+			#episodes = [None] * (max(season_info["episodes"].keys())+1)
 			for episodenum in season_info["episodes"]:
 				episode_info = season_info["episodes"][episodenum]
-				episodes[episodenum] = Episode(title=episode_info['title'])
-			seasons[seasonnum] = Season(episodes=episodes)
-		Show(seasons=seasons,title=infodict['title'],cast=[Cast(actor=Artist(name=c['actor']),role=c['role']) for c in infodict['cast']])
+				episode = Episode(season=season,number=episodenum,title=episode_info['title'])
+				#episodes[episodenum] = Episode(title=episode_info['title'])
+
+				for c in episode_info.get('cast',[]):
+					 Cast(actor=Artist(name=c['actor']),role=c['role'],media=episode)
+
+			for c in season_info.get('cast',[]):
+				 Cast(actor=Artist(name=c['actor']),role=c['role'],media=season)
+			#seasons[seasonnum] = Season(episodes=episodes)
+		#Show(seasons=seasons,title=infodict['title'],cast=[Cast(actor=Artist(name=c['actor']),role=c['role']) for c in infodict['cast']])
+
+		for c in infodict['cast']:
+			 Cast(actor=Artist(name=c['actor']),role=c['role'],media=show)
 
 	else:
 		# movie
-		Movie(title=infodict['title'],cast=[Cast(actor=Artist(name=c['actor']),role=c['role']) for c in infodict['cast']])
+		Movie(title=infodict['title'])
+
+		for c in infodict['cast']:
+			 Cast(actor=Artist(name=c['actor']),role=c['role'],media=movie)
+
+
+
+
 
 
 if __name__ == "__main__":

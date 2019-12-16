@@ -42,39 +42,55 @@ class Artist(db.DBObject):
 #class Character(db.DBObject):
 #	name: str
 
+
+class Media:
+	pass
+
 class Cast(db.DBObject):
-	actor: Artist =  Ref(Artist)
+	__primary__ = "actor","role","media"
+	actor: Artist =  Ref(Artist,exclusive=False,backref="castings")
 	role: str
+	media: Media = Ref(Media,exclusive=False,backref="cast")
 	specific_picture = Ref(Image,exclusive=True,backref="entity")
 
 
 
-class Movie(db.DBObject):
+class Movie(db.DBObject,Media):
 	title: str
 	artwork_cover_options: list = MultiRef(Image,exclusive=True,backref="entity")
 	artwork_cover_index: int
-	cast: list = MultiRef(Cast,exclusive=True,backref="media")
+	#cast: list = MultiRef(Cast,exclusive=True,backref="media")
 
-class Episode(db.DBObject):
-	title: str
-	cast: list = MultiRef(Cast,exclusive=True,backref="media")
 
-class Season(db.DBObject):
-	artwork_cover_options: list = MultiRef(Image,exclusive=True,backref="entity")
-	artwork_cover_index: int
-	cast: list = MultiRef(Cast,exclusive=True,backref="media")
 
-	episodes: list = MultiRef(Episode,exclusive=True,backref="season")
-
-class Show(db.DBObject):
+class Show(db.DBObject,Media):
+	__primary__ = "title",
 	title: str
 	artwork_cover_options: list = MultiRef(Image,exclusive=True,backref="entity")
 	artwork_cover_index: int
-	cast: list = MultiRef(Cast,exclusive=True,backref="media")
+	#cast: list = MultiRef(Cast,exclusive=True,backref="media")
 
-	seasons: list = MultiRef(Season,exclusive=True,backref="show")
+	#seasons: list = MultiRef(Season,exclusive=True,backref="show")
 
+class Season(db.DBObject,Media):
+	__primary__ = "show","number"
+	number: int
+	show: Show = Ref(Show,exclusive=False,backref="seasons")
+	artwork_cover_options: list = MultiRef(Image,exclusive=True,backref="entity")
+	artwork_cover_index: int
+	#cast: list = MultiRef(Cast,exclusive=True,backref="media")
 
+	#episodes: list = MultiRef(Episode,exclusive=True,backref="season")
+
+class Episode(db.DBObject,Media):
+	__primary__ = "season","number"
+	title: str
+	number: int
+	season: Season = Ref(Season,exclusive=False,backref="episodes")
+	#cast: list = MultiRef(Cast,exclusive=True,backref="media")
+
+	def get_full_cast(self):
+		return list(set(self.cast + self.season.cast + self.season.show.cast))
 
 
 
