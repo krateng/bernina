@@ -1,0 +1,8 @@
+# generic temporary / dev files
+*.xcf
+*.pyc
+*.txt
+*.sh
+
+# user files
+/testlibrary

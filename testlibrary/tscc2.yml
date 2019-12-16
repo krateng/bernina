@@ -1,0 +1,19 @@
+name: "Terminator: The Sarah Connor Chronicles"
+cast:
+- role: Cameron Phillips
+  actress: Summer Glau
+- role: Sarah Connor
+  actress: Lena Headey
+episodes:
+    1x01:
+        title: Pilot
+    1x02:
+        title: Gnothi Seauton
+    1x03:
+        title: The Turk
+    2:
+        1:
+            title: Samson and Delilah
+        2: Automatic for the People
+        episodes:
+            3: The Mousetrap
